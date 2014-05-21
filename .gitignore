@@ -3,3 +3,7 @@
 *.log
 .vagrant*
 *.gz
+
+.idea/
+
+*.iml
