@@ -1,5 +1,5 @@
 FROM base
-MAINTAINER Arcus "http://arcus.io"
+
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y wget nginx-full
 RUN mkdir /usr/share/nginx/www/kibana/
