@@ -1,0 +1,63 @@
+user www-data;
+worker_processes 4;
+pid /var/run/nginx.pid;
+daemon off;
+
+events {
+  worker_connections 768;
+}
+
+http {
+
+  upstream elasticsearch {
+  {{range $server := .elasticsearch_hosts}}
+    server {{$server.Value}};
+  {{end}}
+  }
+
+  ##
+  # Basic Settings
+  ##
+
+  sendfile on;
+  tcp_nopush on;
+  tcp_nodelay on;
+  keepalive_timeout 65;
+  types_hash_max_size 2048;
+
+  include /etc/nginx/mime.types;
+  default_type application/octet-stream;
+
+  ##
+  # Logging Settings
+  ##
+
+  access_log /var/log/nginx/access.log;
+  error_log /var/log/nginx/error.log;
+
+  ##
+  # Gzip Settings
+  ##
+
+  gzip on;
+  gzip_disable "msie6";
+
+  server {
+    listen 8081;
+    location / {
+      proxy_redirect off;
+      proxy_set_header  X-Real-IP  $remote_addr;
+      proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header  Host $http_host;
+      proxy_pass http://elasticsearch;
+    }
+  }
+
+  ##
+  # Virtual Host Configs
+  ##
+
+  include /etc/nginx/conf.d/*.conf;
+  include /etc/nginx/sites-enabled/*;
+
+}
